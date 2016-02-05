@@ -1,0 +1,3 @@
+[submodule "2016.01-Blog - Self-Hosted Integration Testing Of OData and WebApi"]
+	path = 2016.01-Blog - Self-Hosted Integration Testing Of OData and WebApi
+	url = https://github.com/IntelliTect/webapi-odata-testing-example.git
