@@ -1,29 +1,47 @@
-
-Function Install-AzureConfiguaration {
+  Function Setup-AzureConfiguaration {
     [CmdletBinding(ConfirmImpact="High")]
     param(
-            $azureCredentials = (Get-Credential -Message "Enter your azure credentials here.")
+           [pscredential]$azureCredentials = (Get-Credential -Message "Enter your azure credentials here.")
         )
 
-        if(!$PSCmdlet.ShouldProcess("Install-AzureConfiguaration","Untested script... confirm to execute", "3")) {
+       if(!$PSCmdlet.ShouldProcess("Install-AzureConfig",“Confirm to execute", "3")) {
             return
-        }
+       }
 
-        Choco Install AzurePowershell
+         
+        # Requires PSGet
+        Install-Module AzureRM        
+        Install-AzureRM
+        Install-Module Azure
+        Import-Module AzureRM
+        Install-AzureRM
 
-        Add-AzureAccount -Credential $azureCredentials
+        Write-Warning "Prompts for Azure Credentials"
+        Add-AzureAccount
         
+        Write-Warning "Prompts to download PublishSettings file"
         Get-AzurePublishSettingsFile
+        Get-ChildItem "$env:USERPROFILE\Downloads\" "*.publishsettings" | 
+            %{ Import-AzurePublishSettingsFile $_.FullName }
 }
 
 Function Initialize-Azure {
-    if(!(Get-Module Azure -ListAvailable)) {
-        Write-Warning "The Azure module is not installed.  To install run 'Choco Install WindowsAzurePowershell'"
-        return
-    }
+    [CmdletBinding()]
+    Param(
+        [string]$subscriptionName
+    )
 
-    Import-Module Azure 
-    Set-AzureSubscription -SubscriptionName "Azure Pass" 
+
+    "Azure","AzureRM" | %{ 
+        $module = Get-Module $_ -ListAvailable
+        if(!$module) {
+            Write-Warning "The Azure module is not installed.  To install run 'Choco Install WindowsAzurePowershell'"
+            return
+        }
+        Write-Output $module
+    } | Import-Module
+
+    Set-AzureSubscription -SubscriptionName $subscriptionName
 }
 
 
@@ -194,3 +212,29 @@ Function Get-AzureStarted {
     Add-AzureAccount
 }
 
+Funcation Deploy-ServiceFabbricApps {
+    [CmdletBinding()]
+    Param(
+        [string[]]$projects
+    )
+
+}
+Connect-ServiceFabricCluster vestafabric.westus.cloudapp.azure.com:19000;
+
+$projects = $("Services.PropertyListing", "Services.ContactManagement", "Services.NeighborhoodDna", "App.Mobile", "App.Web");
+
+foreach ($project in $projects) {
+	cd "..\Dev\Vesta\$project.ServiceFabric\";
+
+	.\Scripts\Deploy-FabricApplication.ps1 `
+		-ApplicationPackagePath .\pkg\Release `
+		-PublishProfileFile .\PublishProfiles\Cloud.xml `
+		-DeployOnly:$false `
+		-UnregisterUnusedApplicationVersionsAfterUpgrade $false `
+		-ForceUpgrade $false `
+		-OverwriteBehavior 'Always' `
+		-ErrorAction Stop `
+		-UseExistingClusterConnection:$true;
+
+	cd ..\..\..\Tools;
+}
