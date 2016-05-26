@@ -19,10 +19,10 @@ namespace EssentialDotNetConfiguration
             Left = left;
         }
 
-        public int Height { get; }
-        public int Width { get; }
-        public int Top { get; }
-        public int Left { get; }
+        public int Height { get; set; }
+        public int Width { get; set; }
+        public int Top { get; set; }
+        public int Left { get; set; }
 
         public static void SetConsoleWindow(ConsoleWindow consoleWindow)
         {

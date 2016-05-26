@@ -16,8 +16,8 @@ public class Program
         {
             ["Profile:UserName"] = Environment.UserName,
             [$"AppConfiguration:ConnectionString"] = DefaultConnectionString,
-            [$"AppConfiguration:MainWindow:Height"] = "400",
-            [$"AppConfiguration:MainWindow:Width"] = "600",
+            [$"AppConfiguration:MainWindow:Height"] = "40",
+            [$"AppConfiguration:MainWindow:Width"] = "60",
             [$"AppConfiguration:MainWindow:Top"] = "0",
             [$"AppConfiguration:MainWindow:Left"] = "0",
         };
@@ -53,7 +53,7 @@ public class Program
                 .AddInMemoryCollection(DefaultConfigurationStrings)
                 .AddJsonFile("Config.json", 
                     true) // bool indicates file is optional
-                // "EssentialDotNetConfiguartion" is an optional prefix for all 
+                // "EssentialDotNetConfiguration" is an optional prefix for all 
                 // environment configuration keys  
                 .AddEnvironmentVariables("EssentialDotNetConfiguration")
                 .AddCommandLine(
@@ -61,7 +61,7 @@ public class Program
         }
         Configuration = configurationBuilder.Build();
 
-        Console.WriteLine($"Hello {Configuration["Profile:USerName"]}");
+        Console.WriteLine($"Hello {Configuration["Profile:UserName"]}");
 
         ConsoleWindow consoleWindow = 
                 Configuration.Get<ConsoleWindow>("AppConfiguration:MainWindow");
